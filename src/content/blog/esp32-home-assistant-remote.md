@@ -1,0 +1,67 @@
+---
+title: "ESP32 Home Assistant Remote"
+description: "Small ESP32 project to control Home Assistant with a remote"
+pubDate: "Dec 08 2023"
+heroImage: "/blog-placeholder-5.jpg"
+---
+
+# What is it?
+
+This is a small esp32 microcontroller with an oled screen attached to it. It is used to control my home assistant via the built in home assistant rest api.
+
+The board is a [Lilygo T-Display S3 AMOLED](https://www.lilygo.cc/products/t-display-s3-amoled). It has a built in battery management system, 2 buttons and a 240x536 full color screen.
+
+# How does it work?
+
+## Screens
+
+I have made a class called Screen. The screen class is used to make every other screen by inheriting from it.
+
+The screen class has a `draw()` and `update()` function aswell as a `screenName` and `id`. The `draw()` function is called once when the screen is first loaded. The `update()` function is called after the draw function ans is used to handle button presses and other things that need to be updated.
+
+### This is how the Error screen and Main menu screen are created
+
+- The first parameter is the name of the screen
+- The second is the screen id
+
+```cpp
+ErrorScreen errorScreen("Error", "error");
+MenuScreen menuScreen("Menu", "menu");
+```
+
+For screens that are used to control home assistant devices I have created classes for each type of device. These classes are HALight and HASwitch. They still interit from the Screen class but have etra functions to handle the device state.
+
+### This is how the light and switch are created
+
+- The first parameter is the screen id
+- The second is the home assistant entity id
+
+```cpp
+HALight deskLamp("deskLamp", "light.midesklamp1s_9479");
+HASwitch bedLight("bedLight", "switch.sonoffbasic_1");
+```
+
+## Screen Manager
+
+The screen manager is used to keep track of all screens and to switch between them. All of the screens get added to the screen manager and then the screen manager allows easy switching of screens. It also handles drawing the top bar which contains the current screen name and battery voltage.
+
+The screenId from before is whats used to change screens.
+
+### This is how the screens are added to the screen manager and how the screen manager is used to change screens
+
+```cpp
+screenManager.addScreen(&menuScreen);
+screenManager.setScreen("menu");
+```
+
+# Libaries used
+
+- [ArduinoJson](https://arduinojson.org/)
+- [SPI](https://www.arduino.cc/en/Reference/SPI)
+- [PubSubClient](https://pubsubclient.knolleary.net/)
+- [WiFi](https://www.arduino.cc/en/Reference/WiFi)
+- [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI)
+- [ClickButton](https://github.com/DCRalph/Click-Button)
+- [HTTPClient](https://github.com/amcewen/HttpClient)
+
+**Code**: [GitHub Repository](https://github.com/DCRalph/esp32-remote)
